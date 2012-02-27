@@ -1,0 +1,11 @@
+This is a tiny programming language to simulate the model of computation known as u-Recursive functions.
+
+Usage
+=====
+
+You can:
+
+1- Compile by running make.
+2- Use runhaskell.
+
+The interpreter was tested with ghc6.
