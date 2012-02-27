@@ -6,16 +6,16 @@
 
 The interpreter is written in Haskell. It was tested with ghc6. To run the interpreter on a .mu file, for example, example.mu, you need to either:
 
-> make
-> ./mu example.mu
+    make
+    ./mu example.mu
 
 or
 
-> runhaskell Mu.hs example.mu
+    runhaskell Mu.hs example.mu
 
 Of course, you should have ghc installed, for Ubuntu, you do:
 
-> sudo apt-get install ghc
+    sudo apt-get install ghc
 
 ## Language Syntax
 
@@ -24,7 +24,7 @@ The language has very minimal syntax:
 1. Comment lines start with %
 2. One function declaration per line.
 3. Functions must use functions only defined before them in the file.
-4. The constructs are zero, succ, chi[f; g1, g2, ..] (composition), pi[n; k] (projection), rho[g, h] (primitive recursion) and mu[f] (unbounded minimization).
+4. The constructs are `zero`, `succ`, `chi[f; g1, g2, ..]` (composition), `pi[n; k]` (projection), `rho[g, h]` (primitive recursion) and `mu[f]` (unbounded minimization).
 
 ## License
 
