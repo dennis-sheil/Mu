@@ -25,6 +25,8 @@ The language has very minimal syntax:
 2. One function declaration per line.
 3. Functions must use functions only defined before them in the file.
 4. The constructs are `zero`, `succ`, `chi[f; g1, g2, ..]` (composition), `pi[n; k]` (projection), `rho[g, h]` (primitive recursion) and `mu[f]` (unbounded minimization).
+5. No nested declarations, each declaration must be one of the constructs described above with the argument functions defined before (or one of zero and succ).
+6. See example.mu for more details.
 
 ## License
 
