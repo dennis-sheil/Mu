@@ -1,36 +1,23 @@
-This is a tiny programming language to simulate the model of computation known as u-Recursive functions.
+# Mu
 
-Usage
-=====
+**A tiny language to practice your u-recursion ;)**
 
-You can:
-
-1- Compile by running make.
-2- Use runhaskell.
-
-The interpreter was tested with ghc6.
-
-h1. Mu
-
-A tiny language to practice your u-recursion ;)
-
-h2. Usage
+## Usage
 
 The interpreter is written in Haskell. It was tested with ghc6. To run the interpreter on a .mu file, for example, example.mu, you need to either:
 
-bc. make
-bc. ./mu example.mu
+> make
+> ./mu example.mu
 
 or
 
-bc. runhaskell Mu.hs example.mu
+> runhaskell Mu.hs example.mu
 
 Of course, you should have ghc installed, for Ubuntu, you do:
 
-bc. sudo apt-get install ghc
+> sudo apt-get install ghc
 
-
-h2. Language Syntax
+## Language Syntax
 
 The language has very minimal syntax:
 
@@ -39,6 +26,6 @@ The language has very minimal syntax:
 3. Functions must use functions only defined before them in the file.
 4. The constructs are zero, succ, chi[f; g1, g2, ..] (composition), pi[n; k] (projection), rho[g, h] (primitive recursion) and mu[f] (unbounded minimization).
 
-h2. License
+## License
 
-Permission is hereby granted to you to do whatever you want with the code, just don't bother the author (except with bug reports or improvements suggestions of course ;)).
+*Permission is hereby granted to you to do whatever you want with the code, just don't bother the author (except with bug reports or improvement suggestions of course ;)).*
