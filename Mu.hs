@@ -57,7 +57,9 @@ eval _ _ = error "Something really weird just happened!"
 type Lookup = [NamedFunction]
 
 lexer :: T.TokenParser ()
-lexer = T.makeTokenParser (L.emptyDef)
+lexer = T.makeTokenParser (L.emptyDef {
+        L.reservedNames = ["zero", "succ", "pi", "rho", "chi", "mu"]
+    })
 
 identifier = T.identifier lexer
 symbol = T.symbol lexer
@@ -68,7 +70,7 @@ parens = T.parens lexer
 brackets = T.brackets lexer
 
 parseProgram :: [String] -> [Value]
-parseProgram lis = parseProgram' lis [("zero", Zero), ("succ", Succ)] []
+parseProgram lis = parseProgram' lis [] []
     where
         parseProgram' [] _ acc = acc
         parseProgram' (l:ls) defns acc = case (P.parse (progLine defns) "" l) of
@@ -117,28 +119,26 @@ funcBody dict = zero <|> suc <|> p <|> chi <|> rho <|> mu
         chi = do
             _ <- symbol "chi"
             _ <- symbol "["
-            f' <- identifier
+            f <- idenOrFunction dict
             _ <- semi
-            gs' <- commaSep identifier
+            gs <- commaSep (idenOrFunction dict)
             _ <- symbol "]"
-            let f = fromJust $ lookup f' dict
-            let gs = map (fromJust . (flip lookup) dict) gs'
             return $ Chi f gs
         rho = do
             _ <- symbol "rho"
             _ <- symbol "["
-            f' <- identifier
+            f <- idenOrFunction dict
             _ <- semi
-            g' <- identifier
+            g <- idenOrFunction dict
             _ <- symbol "]"
-            let f = fromJust $ lookup f' dict
-            let g = fromJust $ lookup g' dict
             return $ Rho f g
         mu = do
             _ <- symbol "mu"
-            f' <- brackets identifier
-            let f = fromJust $ lookup f' dict
+            f <- brackets (idenOrFunction dict)
             return $ Mu f
+
+idenOrFunction :: Lookup -> P.Parser Function
+idenOrFunction dict = (P.try $ funcBody dict) <|> (identifier >>= \n -> return $ fromJust $ lookup n dict)
 
 -- Input/Output of the interpreter
 
