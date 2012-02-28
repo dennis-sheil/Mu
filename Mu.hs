@@ -99,8 +99,7 @@ val dict = do
 func :: Lookup -> P.Parser NamedFunction
 func dict = do
     i <- identifier
-    _ <- symbol "="
-    b <- funcBody dict
+    b <- symbol "=" >> funcBody dict
     return (i, b)
 
 funcBody :: Lookup -> P.Parser Function
@@ -109,33 +108,21 @@ funcBody dict = zero <|> suc <|> p <|> chi <|> rho <|> mu
         zero = symbol "zero" >> return Zero
         suc = symbol "succ" >> return Succ
         p = do
-            _ <- symbol "pi"
-            _ <- symbol "["
-            n <- natural
-            _ <- semi
-            k <- natural
-            _ <- symbol "]"
+            n <- symbol "pi" >> symbol "[" >> natural
+            k <- semi >> natural >>= thru (symbol "]")
             return $ Pi (fromIntegral n) (fromIntegral k)
         chi = do
-            _ <- symbol "chi"
-            _ <- symbol "["
-            f <- idenOrFunction dict
-            _ <- semi
-            gs <- commaSep (idenOrFunction dict)
-            _ <- symbol "]"
+            f <- symbol "chi" >> symbol "[" >> idenOrFunction dict
+            gs <- semi >> commaSep (idenOrFunction dict) >>= thru (symbol "]")
             return $ Chi f gs
         rho = do
-            _ <- symbol "rho"
-            _ <- symbol "["
-            f <- idenOrFunction dict
-            _ <- semi
-            g <- idenOrFunction dict
-            _ <- symbol "]"
+            f <- symbol "rho" >> symbol "[" >> idenOrFunction dict
+            g <- semi >> idenOrFunction dict >>= thru (symbol "]")
             return $ Rho f g
         mu = do
-            _ <- symbol "mu"
-            f <- brackets (idenOrFunction dict)
+            f <- symbol "mu" >> brackets (idenOrFunction dict)
             return $ Mu f
+        thru f x = f >> return x
 
 idenOrFunction :: Lookup -> P.Parser Function
 idenOrFunction dict = (P.try $ funcBody dict) <|> (identifier >>= \n -> return $ fromJust $ lookup n dict)
