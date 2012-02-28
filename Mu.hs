@@ -1,5 +1,4 @@
 import Data.List (intercalate, findIndex)
-import Data.Maybe (fromJust)
 
 import qualified System as S
 
@@ -10,13 +9,18 @@ import Text.ParserCombinators.Parsec ((<|>))
 
 import qualified Control.Monad as M
 
+-- Utility functions
+
+fromJust :: String -> Maybe a -> a
+fromJust name Nothing = error $ "Error: " ++ name ++ " is not (yet) defined."
+fromJust _ (Just x) = x
 
 -- The data definitions for representing functions.
 
 type NamedFunction = (String, Function)
 data Function = Zero | Succ | Pi Int Int | Chi Function [Function] | Rho Function Function | Mu Function
     deriving Show
-type Value = (String, Function, [Integer])
+type Value = (NamedFunction, [Integer])
 
 
 -- Functions for checking functions and evaluating them.
@@ -39,18 +43,18 @@ check _ = True
 
 -- Evaluates the function on the input arguments.
 eval :: Function -> [Integer] -> Integer
-eval f args | arity f /= length args || not (check f) = error "Invalid request"
-eval Zero _ = 0
-eval Succ [x] = x + 1
-eval (Pi _ k) args = args !! (k - 1)
-eval (Chi f gs) args = eval f $ map ((flip eval) args) gs
-eval f@(Rho g h) (x:xs) = case x of
+f `eval` args | arity f /= length args || not (check f) = error "Invalid request"
+Zero `eval` _ = 0
+Succ `eval` [x] = x + 1
+(Pi _ k) `eval` args = args !! (k - 1)
+(Chi f gs) `eval` args = eval f $ map ((flip eval) args) gs
+f@(Rho g h) `eval` (x:xs) = case x of
     0 -> eval g xs
     _ -> eval h ((x-1):(eval f ((x-1):xs)):xs)
-eval (Mu f) args = toInteger $ fromJust $ findIndex (== 0) $ map g [0..]
+(Mu f) `eval` args = toInteger $ fromJust "" $ findIndex (== 0) $ map g [0..]
     where
         g i = eval f ((toInteger i):args)
-eval _ _ = error "Something really weird just happened!"
+_ `eval` _ = error "Something really weird just happened!"
 
 -- UGLY CODE BELOW: lexing and parsing code files
 
@@ -94,7 +98,7 @@ val :: Lookup -> P.Parser Value
 val dict = do
     i <- identifier
     args <- parens (commaSep natural)
-    return (i, fromJust $ lookup i dict, args)
+    return ((i, fromJust i $ lookup i dict), args)
 
 func :: Lookup -> P.Parser NamedFunction
 func dict = do
@@ -125,7 +129,7 @@ funcBody dict = zero <|> suc <|> p <|> chi <|> rho <|> mu
         thru f x = f >> return x
 
 idenOrFunction :: Lookup -> P.Parser Function
-idenOrFunction dict = (P.try $ funcBody dict) <|> (identifier >>= \n -> return $ fromJust $ lookup n dict)
+idenOrFunction dict = (P.try $ funcBody dict) <|> (identifier >>= \n -> return $ fromJust n $ lookup n dict)
 
 -- Input/Output of the interpreter
 
@@ -142,5 +146,5 @@ main = do
     return ()
 
 outputVal :: Value -> IO ()
-outputVal (n, f, args) = do
-    putStrLn $ n ++ "(" ++ (intercalate "," $ map show args) ++ ") = " ++ (show $ eval f args)
+outputVal ((n, f), args) = do
+    putStrLn $ n ++ "(" ++ (intercalate "," $ map show args) ++ ") = " ++ (show $ f `eval` args)
