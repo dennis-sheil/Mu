@@ -1,4 +1,5 @@
 import Data.List (intercalate, findIndex)
+import Data.Text (unpack, strip, pack)
 
 import qualified System as S
 
@@ -14,6 +15,9 @@ import qualified Control.Monad as M
 fromJust :: String -> Maybe a -> a
 fromJust name Nothing = error $ "Error: " ++ name ++ " is not (yet) defined."
 fromJust _ (Just x) = x
+
+trim :: String -> String
+trim = unpack . strip . pack
 
 -- The data definitions for representing functions.
 
@@ -77,6 +81,7 @@ parseProgram :: [String] -> [Value]
 parseProgram lis = parseProgram' lis [] []
     where
         parseProgram' [] _ acc = acc
+        parseProgram' (l:ls) defns acc | null (trim l) = parseProgram' ls defns acc
         parseProgram' (l:ls) defns acc = case (P.parse (progLine defns) "" l) of
             Right (vs, defns') -> parseProgram' ls defns' (acc ++ vs)
             Left _ -> error $ "Failed to parse line: " ++ l
